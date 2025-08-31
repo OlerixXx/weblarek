@@ -9,9 +9,9 @@ export interface IProduct {
 
 export interface IProductsData {
   products: IProduct[];
-  addProduct(product: IProduct | IProduct): void;
+  addProduct(productId: string): void;
   deleteProduct(productId: string, payload: Function | null): void;
-  getProduct(productId: string): TProductInfo;
+  getProduct(productId: string): IProduct;
 }
 
 export interface IBasket {
@@ -24,6 +24,36 @@ export interface IApi {
   post<T>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
 }
 
+export interface IOrderForm {
+  payment: string;
+  address: string;
+}
+
+export interface IOrder extends IOrderForm, IContactsForm {
+  items: string[],
+  total: number
+}
+
+// export interface IContacts extends IContactsForm {
+//   items: string[]
+// }
+
+export interface IContactsForm {
+  email: string;
+  phone: string;
+}
+
+export type OrderFormErrors = Partial<Record<keyof IOrder, string>>;
+export type ContactsFormErrors = Partial<Record<keyof IContacts, string>>;
+
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-export type TProductBaseInfo = Pick<IProduct, 'title' | 'image' | 'category' | 'price'>
 export type TProductInfo = Pick<IProduct, 'title' | 'description' | 'image' | 'category' | 'price'>
+
+export interface IOrderResult {
+  id: string;
+  total: number;
+}
+
+export interface IOrderAndContacts extends IOrder, IContacts {
+  total: number;
+}

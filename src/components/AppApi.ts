@@ -1,4 +1,4 @@
-import { IApi, IProduct } from "../types";
+import { IApi, IOrder, IOrderResult, IOrderAndContacts, IProduct } from "../types";
 import { ApiListResponse } from "./base/api";
 
 export class AppApi {
@@ -11,7 +11,7 @@ export class AppApi {
   }
 
   getProductList(): Promise<IProduct[]> {
-    return this._baseApi.get(`/product`).then((data: ApiListResponse<IProduct>) => 
+    return this._baseApi.get(`/product`).then((data: ApiListResponse<IProduct>) =>
       data.items.map((item) => ({
         ...item,
         image: this.cdn + this.convertSvgToPng(item.image)
@@ -23,9 +23,9 @@ export class AppApi {
     return this._baseApi.get<IProduct>(`/product/${productId}`).then((data: IProduct) => data);
   }
 
-  // setOrder(data: IOrder): Promise<IProduct> {
-  //   return this._baseApi.post<>(`/order`, data).then((order: IOrder) => order);
-  // }
+  setOrder(data: IOrder): Promise<IOrderResult> {
+    return this._baseApi.post(`/order`, data).then((order: IOrderResult) => order);
+  }
 
   private convertSvgToPng(url: string) {
     return url.replace(/\.svg(?=$|\?)/i, '.png');

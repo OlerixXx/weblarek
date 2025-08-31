@@ -1,24 +1,24 @@
-import { createElement, ensureElement } from "../utils/utils";
-import { Component } from "./base/Component";
-import { EventEmitter } from "./base/events";
+import { createElement, ensureElement } from "../../utils/utils";
+import { Component } from "../base/Component";
+import { EventEmitter } from "../base/events";
 
 interface IBasketView {
     items: HTMLElement[];
     total: number;
-    selected: string[];
 }
 
 export class Basket extends Component<IBasketView> {
     protected _list: HTMLElement;
     protected _total: HTMLElement;
-    protected _button: HTMLElement;
+    protected _button: HTMLButtonElement;
+    protected _totalPrice = 0;
 
     constructor(container: HTMLElement, protected events: EventEmitter) {
         super(container);
 
         this._list = ensureElement<HTMLElement>('.basket__list', this.container);
         this._total = this.container.querySelector('.basket__price');
-        this._button = this.container.querySelector('.basket__action');
+        this._button = this.container.querySelector('.basket__button');
 
         if (this._button) {
             this._button.addEventListener('click', () => {
@@ -37,17 +37,29 @@ export class Basket extends Component<IBasketView> {
                 textContent: 'Корзина пуста'
             }));
         }
-    }
+    }    
 
-    set selected(items: string[]) {
-        if (items.length) {
-            this.setDisabled(this._button, false);
+    set total(totalNew: number) {
+        if (totalNew !== null && this._total !== null) {
+            this._totalPrice = totalNew;
+            this.setText(this._total, totalNew.toString() + ' синапсов');
         } else {
-            this.setDisabled(this._button, true);
+            this._totalPrice = null;
+            this.setText(this._total, 'Бесценно');
         }
     }
 
-    set total(total: number) {
-        this.setText(this._total, total.toString());
+    get total() {
+        return this._totalPrice;
+    }
+
+    setButtonDisabled(state: boolean) {
+        if (state) {
+            this._button.style.opacity = '0.3';
+            this._button.disabled = true;
+        } else {
+            this._button.style.opacity = '1';
+            this._button.disabled = false;
+        }
     }
 }
