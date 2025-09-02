@@ -75,7 +75,7 @@ export class Product extends Component<IProduct> {
     this.container = null;
   }
 
-  private categoryToCss(category: string) {
+  private categoryToCss(category: string): string {
     switch (category) {
       case 'софт-скил': return 'card__category_soft';
       case 'хард-скил': return 'card__category_hard';
@@ -129,6 +129,17 @@ export class PreviewProduct extends Product {
     this.button = 'В корзину';
     this.attachAddOnce();
   };
+
+  setButtonDisabled(value: boolean): void {
+    this.productButton.disabled = value;
+    if (value) {
+      this.productButton.style.opacity = '0.3';
+      this.productButton.textContent = 'Недоступно'
+    } else {
+      this.productButton.style.opacity = '1';
+      this.productButton.textContent = 'Купить'
+    }
+  }
 }
 
 

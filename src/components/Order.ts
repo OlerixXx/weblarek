@@ -5,6 +5,7 @@ import { Form } from "./common/Form";
 export class Order extends Form<IOrderForm> {
   protected buttonCard: HTMLButtonElement;
   protected buttonCash: HTMLButtonElement;
+  protected finishButton: HTMLButtonElement;
   protected buttonActiveClass: string;
 
   constructor(container: HTMLFormElement, events: IEvents) {
@@ -12,6 +13,7 @@ export class Order extends Form<IOrderForm> {
 
     this.buttonCard = this.container.elements.namedItem('card') as HTMLButtonElement;
     this.buttonCash = this.container.elements.namedItem('cash') as HTMLButtonElement;
+    this.finishButton = this.container.querySelector('.order__button') as HTMLButtonElement;
     this.buttonActiveClass = 'button_alt-active';
 
     this.buttonCard.addEventListener('click', () => {
@@ -22,6 +24,9 @@ export class Order extends Form<IOrderForm> {
       events.emit('order.payment:change', { field: 'payment', value: 'offline' });
       this.setOnlinePayment(false);
     });
+    this.finishButton.addEventListener('click', () => {
+      events.emit('contacts:open');
+    })
   }
 
   set payment(value: string) {
@@ -40,7 +45,7 @@ export class Order extends Form<IOrderForm> {
     (this.container.elements.namedItem('address') as HTMLInputElement).value = value;
   }
 
-  setOnlinePayment(isOnline: boolean) {
+  setOnlinePayment(isOnline: boolean): void {
     isOnline ? this.payment = 'Онлайн' : this.payment = 'При получении';
   }
 }

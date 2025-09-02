@@ -1,4 +1,4 @@
-import { ContactsFormErrors, IContacts, IContactsForm, IOrder, IOrderAndContacts, IOrderForm, IProduct, IProductsData, OrderFormErrors, TProductInfo } from "../types";
+import { ContactsFormErrors, IContactsForm, IOrder, IOrderForm, IProduct, IProductsData, OrderFormErrors } from "../types";
 import { IEvents } from "./base/events";
 import { Model } from "./common/Model";
 
@@ -46,29 +46,25 @@ export class ProductData implements IProductsData {
     return this._products.find(item => item.id === productId);
   }
 
-  addProduct(productId: string) {
+  addProduct(productId: string): void {
     this._basket.push(productId);
     this.events.emit('basket:changed')
   }
 
-  deleteProduct(productId: string) {
+  deleteProduct(productId: string): void {
     this._basket = this._basket.filter(product => product !== productId);
     this.events.emit('basket:changed')
   }
 
-  clearBasket() {
+  clearBasket(): void {
     this._basket = [];
   }
 
-  setOrderField<K extends keyof IOrderForm>(isContactsOrder: false, field: K, value: IOrderForm[K]): void;
-
-  setOrderField<K extends keyof IContactsForm>(isContactsOrder: true, field: K, value: IContactsForm[K]): void;
-
-  setOrderField(isContactsOrder: boolean, field: string, value: string) {
+  setOrderField(isContactsOrder: boolean, field: string, value: string): void {
     if (isContactsOrder) {
-      this.contacts[field as keyof IContactsForm] = value;
+      this.order[field as keyof IContactsForm] = value;
       if (this.validateOrder(isContactsOrder)) {
-        this.events.emit('contacts:ready', this.contacts);
+        this.events.emit('contacts:ready', this.order);
       }
     } else {
       this.order[field as keyof IOrderForm] = value;
@@ -79,13 +75,13 @@ export class ProductData implements IProductsData {
   }
 
 
-  validateOrder(isContactsOrder: boolean): boolean {  
+  validateOrder(isContactsOrder: boolean): boolean {
     if (isContactsOrder) {
       const errors: ContactsFormErrors = {};
-      if (!this.contacts.email) {        
+      if (!this.order.email) {
         errors.email = 'Необходимо указать почту';
       }
-      if (!this.contacts.phone) {
+      if (!this.order.phone) {
         errors.phone = 'Необходимо указать номер телефона';
       }
       this.contactsFormErrors = errors;
@@ -105,14 +101,14 @@ export class ProductData implements IProductsData {
     }
   }
 
-  getOrderData(): IOrderAndContacts {
+  getOrderData(): IOrder {
     return {
       payment: this.order.payment,
       address: this.order.address,
-      email: this.contacts.email,
-      phone: this.contacts.phone,
-      total: undefined,
+      email: this.order.email,
+      phone: this.order.phone,
+      total: this.order.total,
       items: this.basket
-    }
+    };
   }
 }

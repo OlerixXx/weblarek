@@ -8,12 +8,10 @@ import { Contacts } from './components/Contacts';
 import { Order } from './components/Order';
 import { Page } from './components/Page';
 import { BasketProduct, CatalogProduct, PreviewProduct, Product } from './components/Product';
-import { ProductsContainer } from './components/ProductsContainer';
 import { ProductData } from './components/ProductsData';
 import './scss/styles.scss';
-import { IContacts, IContactsForm, IOrderAndContacts, IOrderForm, IProduct } from './types';
+import { IContactsForm, IOrder, IOrderForm, IProduct } from './types';
 import { API_URL, CDN_URL, settings } from './utils/constants';
-import { testProducts } from './utils/testProducts';
 import { cloneTemplate, createElement, ensureElement } from './utils/utils';
 
 const events = new EventEmitter();
@@ -28,7 +26,7 @@ const basketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('
 const productBasketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-basket');
 const productTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog');
 const productPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-preview');
-const productsContainer = new ProductsContainer(document.querySelector('.gallery'));
+// const productsContainer = new ProductsContainer(document.querySelector('.gallery'));
 const orderTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#contacts');
 const successTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#success');
@@ -60,7 +58,7 @@ events.on('initialData:loaded', () => {
     return product.render(item);
   })
 
-  productsContainer.render({ catalog: productsArray });
+  page.render({ catalog: productsArray });
 });
 
 // Выбрали продукт из списка на главной странице
@@ -68,9 +66,8 @@ events.on('product:select', (data: { product: Product }) => {
   const showProduct = (data: { product: Product }) => {
     const basketHasProduct = productsData.basket.some(id => id === data.product.id);
     const card = new PreviewProduct(basketHasProduct, cloneTemplate(productPreviewTemplate), events);
-
-    console.log(card);
     const productData = productsData.getProduct(data.product.id);
+    if (productData.price === null) card.setButtonDisabled(true);
     modal.render({
       content: card.render(productData)
     });
@@ -123,7 +120,7 @@ events.on('order:open', () => {
 })
 
 // Открыть форму с контактами
-events.on('order:submit', () => {
+events.on('contacts:open', () => {
   modal.render({
     content: contacts.render({
       email: '',
@@ -134,19 +131,20 @@ events.on('order:submit', () => {
   });
 })
 
-// Окно с успешным завершением покупки
+// Обработка завершения покупки
 events.on('contacts:submit', () => {
-  const orderData: IOrderAndContacts = productsData.getOrderData();
+  const orderData: IOrder = productsData.getOrderData();
   orderData.total = basket.total;
   api.setOrder(orderData)
     .then((result) => {
-      const success = new Success(cloneTemplate(successTemplate), {
+      const success = new Success(cloneTemplate(successTemplate), events, {
         onClick: () => {
           modal.close();
           productsData.clearBasket();
           events.emit('basket:changed');
         }
       });
+      success.total = basket.total;
       console.log(result);
 
       modal.render({
