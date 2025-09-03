@@ -1,6 +1,6 @@
 # Проектная работа "Веб-ларек"
 
-Ссылка: https://github.com/OlerixXx/web-larek-frontend
+Ссылка: https://github.com/OlerixXx/weblarek
 Стек: HTML, SCSS, TS, Webpack
 
 Структура проекта:
